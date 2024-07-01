@@ -2,6 +2,7 @@ package com.paloma.product_manager.application;
 
 import com.paloma.product_manager.adapters.dto.ProductDTO;
 import com.paloma.product_manager.adapters.mapper.ProductMapper;
+import com.paloma.product_manager.application.messaging.CreateProductProducer;
 import com.paloma.product_manager.domain.exception.ProductAlreadyExistsException;
 import com.paloma.product_manager.domain.model.ProductEntity;
 import com.paloma.product_manager.domain.respository.ProductModelUseCase;
@@ -23,6 +24,9 @@ public class ProductService implements ProductServiceUseCase {
     @Autowired
     private ProductModelUseCase useCase;
 
+    @Autowired
+    private CreateProductProducer productProducer;
+
     @Override
     public ProductDTO getProductById(Long id) {
         ProductEntity entity = useCase.findById(id);
@@ -39,13 +43,17 @@ public class ProductService implements ProductServiceUseCase {
     @Override
     public ProductDTO createProduct(ProductDTO newProduct) {
         String treatedProductName = treatmentString(newProduct.getName());
+
         Optional<ProductEntity> entity = useCase.findByName(treatedProductName);
         if (entity.isPresent()){
             throw new ProductAlreadyExistsException(entity.get().getId(), convertEntityToDto(entity.get()));
         }
         newProduct.setName(treatedProductName);
-        return convertEntityToDto(useCase.create(
-                convertDtoToEntity(newProduct)));
+
+        ProductEntity productCreated = useCase.create(convertDtoToEntity(newProduct));
+        productProducer.publishProductMessage(productCreated);
+
+        return convertEntityToDto(productCreated);
     }
 
     @Override
