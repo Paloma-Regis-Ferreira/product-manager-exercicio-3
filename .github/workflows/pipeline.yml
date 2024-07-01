@@ -34,12 +34,6 @@ jobs:
       - name: Build
         run: ./gradlew build
 
-    dependency-submission:
-
-      runs-on: ubuntu-latest
-      permissions:
-        contents: write
-
       - name: Tests
         run: ./gradlew test
 
