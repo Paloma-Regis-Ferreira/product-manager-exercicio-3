@@ -45,8 +45,9 @@ jobs:
 
       - name: Check coverage threshold
         run: |
-          COVERAGE=$(awk '/Total/{print substr($4, 1, length($4)-1)}'  build/reports/jacoco/test/html/index.html
-          if (( $(echo "$COVERAGE < 80.0" | bc -l) )); then
+          COVERAGE=$(awk -F'[<>]' '/<td class="ctr[^>]*>[0-9]+%<\/td>/{print substr($3, 1, length($3)-1)}' build/reports/jacoco/test/html/index.html)
+          COVERAGE=$(echo "$COVERAGE" | tr -d '%')
+          if (( $COVERAGE < 80 )); then
             echo "Erro: Cobertura de código abaixo de 80% (${COVERAGE}%)"
             exit 1
           else
