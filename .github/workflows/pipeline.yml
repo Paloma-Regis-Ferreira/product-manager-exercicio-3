@@ -30,7 +30,7 @@ jobs:
         with:
           java-version: '22'
           distribution: 'temurin'
-          
+
       - name: Ensure script is executable
         run: chmod +x ./gradlew
 
@@ -48,3 +48,13 @@ jobs:
         with:
           name: jacoco-report
           path: build/reports/jacoco/test/html/
+
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=$(awk '/Total/{print substr($4, 1, length($4)-1)}' build/reports/jacoco/test/jacocoTestReport.xml)
+          if (( $(echo "$COVERAGE < 80.0" | bc -l) )); then
+            echo "Erro: Cobertura de código abaixo de 80% (${COVERAGE}%)"
+            exit 1
+          else
+            echo "Cobertura de código: ${COVERAGE}%"
+          fi
