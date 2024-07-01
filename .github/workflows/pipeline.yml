@@ -43,18 +43,18 @@ jobs:
       - name: JaCoCo report
         run: ./gradlew jacocoTestReport
 
-      - name: Archive test reports
-        uses: actions/upload-artifact@v2
-        with:
-          name: jacoco-report
-          path: build/reports/jacoco/test/html/
-
       - name: Check coverage threshold
         run: |
-          COVERAGE=$(awk '/Total/{print substr($4, 1, length($4)-1)}' build/jacoco/report.xml)
+          COVERAGE=$(awk '/Total/{print substr($4, 1, length($4)-1)}'  build/reports/jacoco/test/html/index.html
           if (( $(echo "$COVERAGE < 80.0" | bc -l) )); then
             echo "Erro: Cobertura de código abaixo de 80% (${COVERAGE}%)"
             exit 1
           else
             echo "Cobertura de código: ${COVERAGE}%"
           fi
+
+      - name: Archive test reports
+        uses: actions/upload-artifact@v2
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/html/

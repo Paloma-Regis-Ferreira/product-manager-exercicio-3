@@ -42,7 +42,6 @@ jacocoTestReport {
 	reports {
 		xml.required = false
 		csv.required = false
-		xml.destination file("${getRootDir()}/build/jacoco/report.xml")
 	}
 	afterEvaluate {
 		classDirectories.setFrom(files(classDirectories.files.collect {
