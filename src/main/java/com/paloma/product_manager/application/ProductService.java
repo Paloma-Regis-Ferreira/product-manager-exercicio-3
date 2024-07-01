@@ -14,8 +14,8 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.paloma.product_manager.adapters.mapper.ProductMapper.converterDtoToEntity;
-import static com.paloma.product_manager.adapters.mapper.ProductMapper.converterEntityToDto;
+import static com.paloma.product_manager.adapters.mapper.ProductMapper.convertDtoToEntity;
+import static com.paloma.product_manager.adapters.mapper.ProductMapper.convertEntityToDto;
 
 @Service
 public class ProductService implements ProductServiceUseCase {
@@ -26,13 +26,13 @@ public class ProductService implements ProductServiceUseCase {
     @Override
     public ProductDTO getProductById(Long id) {
         ProductEntity entity = useCase.findById(id);
-        return converterEntityToDto(entity);
+        return convertEntityToDto(entity);
     }
 
     @Override
     public List<ProductDTO> getAllProducts() {
         return useCase.findAll().stream()
-                .map(ProductMapper::converterEntityToDto)
+                .map(ProductMapper::convertEntityToDto)
                 .collect(Collectors.toList());
     }
 
@@ -41,19 +41,19 @@ public class ProductService implements ProductServiceUseCase {
         String treatedProductName = treatmentString(newProduct.getName());
         Optional<ProductEntity> entity = useCase.findByName(treatedProductName);
         if (entity.isPresent()){
-            throw new ProductAlreadyExistsException(entity.get().getId(), converterEntityToDto(entity.get()));
+            throw new ProductAlreadyExistsException(entity.get().getId(), convertEntityToDto(entity.get()));
         }
         newProduct.setName(treatedProductName);
-        return converterEntityToDto(useCase.create(
-                converterDtoToEntity(newProduct)));
+        return convertEntityToDto(useCase.create(
+                convertDtoToEntity(newProduct)));
     }
 
     @Override
     public ProductDTO updateProduct(Long id, ProductDTO updateProduct) {
         String treatedProductName = treatmentString(updateProduct.getName());
         updateProduct.setName(treatedProductName);
-        return converterEntityToDto(useCase.update(
-                id, converterDtoToEntity(updateProduct)));
+        return convertEntityToDto(useCase.update(
+                id, convertDtoToEntity(updateProduct)));
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ProductService implements ProductServiceUseCase {
         useCase.delete(id);
     }
 
-    private String treatmentString(String productName){
+    protected String treatmentString(String productName){
         String normalized = Normalizer.normalize(productName, Normalizer.Form.NFD);
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         String treatedName = pattern.matcher(normalized).replaceAll("");

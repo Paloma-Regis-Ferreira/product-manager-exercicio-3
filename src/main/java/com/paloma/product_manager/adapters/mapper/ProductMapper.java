@@ -5,7 +5,7 @@ import com.paloma.product_manager.domain.model.ProductEntity;
 
 public class ProductMapper {
 
-    public static ProductDTO converterEntityToDto(ProductEntity entity){
+    public static ProductDTO convertEntityToDto(ProductEntity entity){
         return ProductDTO.builder()
                 .id(entity.getId())
                 .name(entity.getName())
@@ -14,7 +14,7 @@ public class ProductMapper {
                 .build();
     }
 
-    public static ProductEntity converterDtoToEntity(ProductDTO dto){
+    public static ProductEntity convertDtoToEntity(ProductDTO dto){
         return ProductEntity.builder()
                 .id(dto.getId())
                 .name(dto.getName())

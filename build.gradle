@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.1'
 	id 'io.spring.dependency-management' version '1.1.5'
+	id 'jacoco'
 }
 
 group = 'com.paloma'
@@ -11,6 +12,10 @@ java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(22)
 	}
+}
+
+jacoco {
+	toolVersion = "0.8.12"
 }
 
 repositories {
@@ -29,4 +34,23 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = false
+		csv.required = false
+		xml.destination file("${getRootDir()}/build/jacoco/report.xml")
+	}
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					"**/com/paloma/product_manager/adapters/dto/**",
+					"**/com/paloma/product_manager/domain/exception/**",
+					"**/com/paloma/product_manager/domain/model/**"
+			])
+		}))
+	}
 }
