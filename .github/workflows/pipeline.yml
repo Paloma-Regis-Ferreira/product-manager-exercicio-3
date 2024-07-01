@@ -16,10 +16,10 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
@@ -31,33 +31,20 @@ jobs:
           java-version: '22'
           distribution: 'temurin'
 
-      - name: Permission for linux
-        if: runner.os != 'Windows'
-        run: chmod +x gradlew
-
       - name: Build
-        run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            ./gradlew.bat build
-          else
-            ./gradlew build
-          fi
+        run: ./gradlew build
+
+    dependency-submission:
+
+      runs-on: ubuntu-latest
+      permissions:
+        contents: write
 
       - name: Tests
-        run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            ./gradlew.bat test
-          else
-            ./gradlew test
-          fi
+        run: ./gradlew test
 
       - name: JaCoCo report
-        run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            ./gradlew.bat jacocoTestReport
-          else
-            ./gradlew jacocoTestReport
-          fi
+        run: ./gradlew jacocoTestReport
 
       - name: Archive test reports
         uses: actions/upload-artifact@v2
